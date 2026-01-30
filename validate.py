@@ -43,10 +43,10 @@ def make_dummy_input(sess: ort.InferenceSession, batch_size: int = 1) -> dict:
             else:
                 shape.append(dim)
 
-        if "int" in inp.type.lower() or "int64" in inp.type.lower():
-            feed[inp.name] = np.ones(shape, dtype=np.int64)
-        elif "int32" in inp.type.lower():
+        if "int32" in inp.type.lower():
             feed[inp.name] = np.ones(shape, dtype=np.int32)
+        elif "int" in inp.type.lower():
+            feed[inp.name] = np.ones(shape, dtype=np.int64)
         else:
             feed[inp.name] = np.random.randn(*shape).astype(np.float32)
 
