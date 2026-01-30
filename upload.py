@@ -47,8 +47,8 @@ Quantized ONNX model for streaming speech recognition, derived from
 
 | File | Description |
 |------|-------------|
-| `encoder.{quant_type}.onnx` | Quantized encoder (stateful, cache-aware streaming) |
-| `decoder_joint.{quant_type}.onnx` | Quantized decoder + joint network |
+| `encoder.onnx` | Quantized encoder (stateful, cache-aware streaming) |
+| `decoder_joint.onnx` | Quantized decoder + joint network |
 | `tokenizer.model` | SentencePiece tokenizer (unchanged from source) |
 
 ## Usage
@@ -102,6 +102,19 @@ def main():
             repo_id=repo_id,
             commit_message=f"Add model card for {quant_type} quantized model",
         )
+
+        # Delete old-style named files (e.g. encoder.int8.onnx) if present
+        old_files = [
+            f"encoder.{quant_type}.onnx",
+            f"decoder_joint.{quant_type}.onnx",
+        ]
+        for old_file in old_files:
+            try:
+                api.delete_file(old_file, repo_id=repo_id,
+                                commit_message=f"Remove old {old_file}")
+                print(f"  Deleted old file: {old_file}")
+            except Exception:
+                pass  # file doesn't exist, nothing to delete
 
         # Upload model files
         api.upload_folder(

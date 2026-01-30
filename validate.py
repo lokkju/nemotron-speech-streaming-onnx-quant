@@ -104,7 +104,7 @@ def benchmark_inference(sess: ort.InferenceSession, feed: dict, n_runs: int = 20
 def validate_model(model_name: str, quant_type: str):
     """Validate a single quantized model against its fp32 source."""
     src_path = os.path.join(SOURCE_DIR, f"{model_name}.onnx")
-    quant_path = os.path.join(OUTPUT_DIR, quant_type, f"{model_name}.{quant_type}.onnx")
+    quant_path = os.path.join(OUTPUT_DIR, quant_type, f"{model_name}.onnx")
 
     if not os.path.exists(src_path):
         print(f"  SKIP: source not found ({src_path})")

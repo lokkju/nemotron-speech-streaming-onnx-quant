@@ -85,8 +85,8 @@ def main():
     for model_file in MODELS:
         src = os.path.join(SOURCE_DIR, model_file)
         base = model_file.replace(".onnx", "")
-        jobs.append((quantize_int8, src, os.path.join(int8_dir, f"{base}.int8.onnx"), f"{base} int8"))
-        jobs.append((quantize_int4, src, os.path.join(int4_dir, f"{base}.int4.onnx"), f"{base} int4"))
+        jobs.append((quantize_int8, src, os.path.join(int8_dir, model_file), f"{base} int8"))
+        jobs.append((quantize_int4, src, os.path.join(int4_dir, model_file), f"{base} int4"))
 
     # Run quantization jobs in parallel
     with ProcessPoolExecutor(max_workers=len(jobs)) as executor:
@@ -105,8 +105,8 @@ def main():
         src = os.path.join(SOURCE_DIR, model_file)
         base = model_file.replace(".onnx", "")
 
-        verify_io_signatures(src, os.path.join(int8_dir, f"{base}.int8.onnx"), f"{base} int8")
-        verify_io_signatures(src, os.path.join(int4_dir, f"{base}.int4.onnx"), f"{base} int4")
+        verify_io_signatures(src, os.path.join(int8_dir, model_file), f"{base} int8")
+        verify_io_signatures(src, os.path.join(int4_dir, model_file), f"{base} int4")
 
     # Copy tokenizer and other files
     for copy_file in COPY_FILES:

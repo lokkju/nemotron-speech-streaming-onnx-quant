@@ -33,7 +33,7 @@ The project is a linear pipeline of standalone scripts:
 - The encoder has a large external weights file (`encoder.onnx.data`, 2.6 GB). Load with `onnx.load(..., load_external_data=True)`. Quantization must handle external data correctly.
 - `tokenizer.model` (SentencePiece) is copied unchanged — never quantized.
 - int4 `MatMulNBitsQuantizer` may not support all ops; fall back to GPTQ or RTN block-wise quantization if needed.
-- Output files use naming convention: `encoder.int8.onnx`, `decoder_joint.int4.onnx`, etc.
+- Output files use standard names (`encoder.onnx`, `decoder_joint.onnx`) within each quantization directory (`output/int8/`, `output/int4/`), since parakeet-rs hardcodes these filenames.
 - The `output/` directory is gitignored and contains the quantized model files.
 - Source model was exported from NeMo using `cache_aware_stream_step()` with dynamic axes on batch and time dimensions. The export script is documented in the [HuggingFace discussion](https://huggingface.co/altunenes/parakeet-rs/discussions/1).
 
