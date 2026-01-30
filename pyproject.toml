@@ -1,0 +1,14 @@
+[project]
+name = "nemotron-speech-streaming-onnx-quant"
+version = "0.1.0"
+description = "Quantize Nemotron Speech Streaming EN 0.6B ONNX model to int8 and int4"
+requires-python = ">=3.10"
+license = {text = "PolyForm-Shield-1.0.0"}
+dependencies = [
+    "onnxruntime>=1.17.0",
+    "onnx>=1.15.0",
+    "huggingface-hub>=0.20.0",
+]
+
+[dependency-groups]
+dev = []
