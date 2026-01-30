@@ -5,7 +5,7 @@ import shutil
 
 import onnx
 from onnxruntime.quantization import QuantType, quantize_dynamic
-from onnxruntime.quantization.matmul_4bits_quantizer import MatMul4BitsQuantizer
+from onnxruntime.quantization.matmul_nbits_quantizer import MatMulNBitsQuantizer
 
 SOURCE_DIR = "source_model"
 OUTPUT_DIR = "output"
@@ -25,12 +25,12 @@ def quantize_int8(input_path: str, output_path: str):
 
 
 def quantize_int4(input_path: str, output_path: str):
-    """Apply weight-only int4 quantization using MatMul4BitsQuantizer."""
+    """Apply weight-only int4 quantization using MatMulNBitsQuantizer."""
     print(f"  int4: {input_path} -> {output_path}")
     model = onnx.load(input_path, load_external_data=True)
-    quantizer = MatMul4BitsQuantizer(model)
+    quantizer = MatMulNBitsQuantizer(model)
     quantizer.process()
-    onnx.save_model(quantizer.model, output_path)
+    onnx.save_model(quantizer.model.model, output_path)
 
 
 def verify_io_signatures(original_path: str, quantized_path: str, label: str):
