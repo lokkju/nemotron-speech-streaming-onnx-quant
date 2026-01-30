@@ -15,16 +15,18 @@ Quantize the Nemotron Speech Streaming EN 0.6B ONNX model to int8 and int4 for f
 ## Output Models
 
 ### int8 (dynamic quantization)
-- `encoder.int8.onnx`
-- `decoder_joint.int8.onnx`
+- `encoder.onnx` (quantized, replaces fp32)
+- `decoder_joint.onnx` (quantized, replaces fp32)
 - `tokenizer.model` (unchanged)
 - Expected size: ~700 MB total (similar ratio to TDT int8: 2600 MB → 670 MB)
 
 ### int4 (weight-only quantization)
-- `encoder.int4.onnx`
-- `decoder_joint.int4.onnx`
+- `encoder.onnx` (quantized, replaces fp32)
+- `decoder_joint.onnx` (quantized, replaces fp32)
 - `tokenizer.model` (unchanged)
 - Expected size: ~350-400 MB total
+
+**Important:** Output files must be named `encoder.onnx` and `decoder_joint.onnx` (not `encoder.int8.onnx` etc.) because parakeet-rs `Nemotron::from_pretrained()` hardcodes these filenames. Each quantization level is published as a separate HuggingFace repo, so the directory name distinguishes the variant.
 
 ## Approach
 
