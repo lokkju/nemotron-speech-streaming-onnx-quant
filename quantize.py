@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import onnx
 from onnxruntime.quantization import QuantType, quantize_dynamic
@@ -15,12 +16,16 @@ COPY_FILES = ["tokenizer.model"]
 
 
 def quantize_int8(input_path: str, output_path: str):
-    """Apply dynamic int8 quantization."""
+    """Apply dynamic int8 quantization.
+
+    Conv ops are excluded because ConvInteger is not supported by the CPU EP.
+    """
     print(f"  int8: {input_path} -> {output_path}")
     quantize_dynamic(
         model_input=input_path,
         model_output=output_path,
         weight_type=QuantType.QInt8,
+        op_types_to_quantize=["MatMul", "Gemm", "LSTM"],
     )
 
 
@@ -75,20 +80,24 @@ def main():
     os.makedirs(int8_dir, exist_ok=True)
     os.makedirs(int4_dir, exist_ok=True)
 
-    # Quantize each model
+    # Build list of quantization jobs
+    jobs = []
     for model_file in MODELS:
         src = os.path.join(SOURCE_DIR, model_file)
         base = model_file.replace(".onnx", "")
+        jobs.append((quantize_int8, src, os.path.join(int8_dir, f"{base}.int8.onnx"), f"{base} int8"))
+        jobs.append((quantize_int4, src, os.path.join(int4_dir, f"{base}.int4.onnx"), f"{base} int4"))
 
-        print(f"\nQuantizing {model_file}...")
-
-        # int8
-        int8_out = os.path.join(int8_dir, f"{base}.int8.onnx")
-        quantize_int8(src, int8_out)
-
-        # int4
-        int4_out = os.path.join(int4_dir, f"{base}.int4.onnx")
-        quantize_int4(src, int4_out)
+    # Run quantization jobs in parallel
+    with ProcessPoolExecutor(max_workers=len(jobs)) as executor:
+        futures = {
+            executor.submit(fn, src, out): label
+            for fn, src, out, label in jobs
+        }
+        for future in as_completed(futures):
+            label = futures[future]
+            future.result()  # raise on error
+            print(f"  Done: {label}")
 
     # Verify I/O signatures
     print("\nVerifying I/O signatures...")
